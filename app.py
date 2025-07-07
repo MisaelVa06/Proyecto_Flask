@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -10,9 +10,21 @@ def inicio():
 def about():
     return render_template('about.html')
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        correo = request.form.get('correo')
+        mensaje = request.form.get('mensaje')
+        
+        if not nombre or not correo or not mensaje:
+             error = "Por favor completa todos los campos."
+             return render_template('contact.html', error=error)
+    
+        return render_template('response.html', nombre=nombre)
+   
     return render_template('contact.html')
+
 
 
 
