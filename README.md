@@ -10,11 +10,16 @@ Este es un proyecto básico hecho con Python y Flask. La aplicación renderiza u
 
 ## Estructura del proyecto
 mi_web_flask/
-├── app.py
-├── templates/
-│ └── index.html
-├── static/
-│ └── style.css
+
+ ├── app.py
+
+ ├── templates/
+
+ │             └── index.html
+
+ ├── static/
+
+ │             └── style.css
 
 ## ¿Cómo ejecutarlo localmente?
 
