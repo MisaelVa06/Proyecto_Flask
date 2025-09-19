@@ -41,3 +41,9 @@ jobs:
             exit "${rc}"
           fi
 
+  - name: Cleanup workspace (always)
+    if: always()
+    run: |
+      echo "Cleaning runner workspace and caches..."
+      rm -rf "$RUNNER_WORKSPACE"/* || true
+      rm -rf ~/.cache/pip/* || true
