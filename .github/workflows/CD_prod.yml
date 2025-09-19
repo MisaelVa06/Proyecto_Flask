@@ -47,6 +47,7 @@ jobs:
             -i hosts.ini \
             deploy_production.yml \
             --vault-password-file .vault_pass.txt \
+             -e "ansible_become=true ansible_become_password=${{ secrets.BECOME_PASSWORD }}" \
             --diff -v
 
       - if: always()
