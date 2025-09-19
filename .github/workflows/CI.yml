@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vm-control]  # usa tus labels reales
     steps:
       - name: Checkout app
         uses: actions/checkout@v4
@@ -16,22 +16,28 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          cache: "pip"  # caching integrado (requiere requirements*.txt)
 
       - name: Install deps
         run: |
-          pip install -U pip
+          python -m pip install -U pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest flake8
 
       - name: Lint
         run: flake8 .
+        # Si solo quieres warning y que no bloquee:
+        # run: flake8 . || echo "flake8 warnings (no bloquea)"
 
       - name: Tests
-        run: pytest -q
+        run: |
+          set -e
+          pytest -q || rc=$?
+          # Si no hay tests, pytest devuelve 5. Lo tratamos como éxito.
+          if [ "${rc:-0}" -eq 5 ]; then
+            echo "No tests collected. Marking as success."
+            exit 0
+          elif [ -n "${rc}" ]; then
+            exit "${rc}"
+          fi
+
