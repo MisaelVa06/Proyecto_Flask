@@ -1,0 +1,54 @@
+name: Deploy Production
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    environment: Production
+    runs-on: [self-hosted, linux, vm-control]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout infra
+        uses: actions/checkout@v4
+        with:
+          repository: MisaelVa06/DevOpslvl2
+          ref: main
+          path: infra
+          fetch-depth: 0
+          # token: ${{ secrets.INFRA_REPO_TOKEN }}  # solo si privado
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: |
+          python -m pip install --upgrade pip
+          pip install "ansible==9.*"
+
+      - name: Preload known_hosts (opcional pero recomendado)
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Run Ansible (staging)
+        working-directory: infra
+        env:
+          ANSIBLE_BECOME_PASSWORD: ${{ secrets.BECOME_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "${{ secrets.VAULT_PASSWORD }}" > .vault_pass.txt
+          chmod 600 .vault_pass.txt
+
+          ansible-playbook \
+            -i hosts.ini \
+            deploy_production.yml \
+            --vault-password-file .vault_pass.txt \
+            --diff -v
+
+      - if: always()
+        working-directory: infra
+        run: rm -f .vault_pass.txt
