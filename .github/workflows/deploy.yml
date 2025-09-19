@@ -31,7 +31,7 @@ jobs:
         with:
           repository: MisaelVa06/devops-lvl2
           path: infra
-          token: ${{ secrets.INFRA_REPO_TOKEN }}
+          ref: main
 
       # Evitar prompts de host key en SSH
       - name: Configure known_hosts
