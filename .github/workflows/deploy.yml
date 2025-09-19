@@ -1,0 +1,67 @@
+name: CI/CD Deploy Flask App
+
+on:
+  push:
+    branches: [ develop, main ]   # develop -> staging, main -> production
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, vm-control]   # tu runner en vm-control
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+
+    env:
+      TARGET_ENV: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      PLAYBOOK: ${{ github.ref_name == 'main'
+                   && 'playbooks/deploy_production.yml'
+                   || 'playbooks/deploy_staging.yml' }}
+      APP_BRANCH: ${{ github.ref_name }}
+
+    steps:
+      # (opcional) checkout del repo de la app
+      - name: Checkout app
+        uses: actions/checkout@v4
+
+      # Checkout del repo de INFRA (privado) en subcarpeta infra/
+      - name: Checkout infra repo
+        uses: actions/checkout@v4
+        with:
+          repository: MisaelVa06/devops-lvl2
+          path: infra
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
+
+      # Evitar prompts de host key en SSH
+      - name: Configure known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # Prechecks básicos
+      - name: Prechecks (syntax + ping)
+        working-directory: infra
+        run: |
+          ansible-playbook --syntax-check -i hosts.ini ${PLAYBOOK}
+          ansible -i hosts.ini ${TARGET_ENV} -m ping
+
+      # Despliegue (solo rol de app; el host ya debe tener Docker y seguridad)
+      - name: Deploy app
+        working-directory: infra
+        env:
+          VAULT_PASSWORD:  ${{ secrets.VAULT_PASSWORD }}
+          BECOME_PASSWORD: ${{ secrets.BECOME_PASSWORD }}
+        run: |
+          echo "$VAULT_PASSWORD" > .vault_pass && chmod 600 .vault_pass
+
+          EXTRA="--extra-vars flask_branch=${APP_BRANCH}"
+          if [ -n "$BECOME_PASSWORD" ]; then
+            EXTRA="$EXTRA --extra-vars ansible_become_pass=$BECOME_PASSWORD"
+          fi
+
+          ansible-playbook -i hosts.ini ${PLAYBOOK} \
+            --vault-password-file .vault_pass $EXTRA -vv
+
+          shred -u .vault_pass || rm -f .vault_pass
