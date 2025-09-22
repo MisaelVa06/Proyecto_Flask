@@ -52,7 +52,7 @@ jobs:
       - name: Deploy (vault vía FILE con ID 'prod')
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml \
-            --vault-id prod@file:$GITHUB_WORKSPACE/.vault_prod
+            --vault-pass-file $GITHUB_WORKSPACE/.vault_prod
 
 
   debug:
