@@ -1,0 +1,25 @@
+name: CI
+
+on: 
+  push:
+    branches: [ "main"]
+
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, vm-control]
+
+    steps:
+      -name: Code Checkout
+       uses: actions/checkout@v4
+
+      -name: Super-Linter
+       uses: super-linter/super-linter@v6
+       env:
+          DEFAULT_BRANCH: main
+          GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+
+ 
+
+
