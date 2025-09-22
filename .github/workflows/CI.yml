@@ -35,20 +35,19 @@ jobs:
     runs-on: [self-hosted, Linux, X64, vm-control, ansible]
     #needs: [super_linter]  
     steps:
-      - name: infra_repo_clone
-        uses:  actions/checkout@v4
-        with:
-          repository: MisaelVa06/DevOpslvl2
-          ref: main
-          path: other
-
-      - name: ansible_deploy_prod
+      - name: Preparar vault pass file
         working-directory: other
         env:
-          VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}   # <- tu secret
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+          VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
         run: |
-          ansible-playbook -i hosts.ini deploy_production.yml --vault-id prod@env:VAULT_PASSWORD 
+          umask 177
+          echo -n "$VAULT_PASSWORD" > ~/.vault_prod
+
+      - name: Deploy (vault desde FILE)
+        working-directory: other
+        run: |
+          ansible-playbook -i hosts.ini deploy_production.yml \
+            --vault-id prod@file:~/.vault_prod
 
   
           
