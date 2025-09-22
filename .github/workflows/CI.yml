@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v4
-      # aquí irían tus builds/tests
 
- # super_linter:             # usa minúsculas y sin espacios por convención
+
+ # super_linter:             
   #  runs-on: ubuntu-latest
    # needs: [build]
     #steps:
@@ -24,11 +24,11 @@ jobs:
       #- name: Run Super-Linter
        # uses: super-linter/super-linter@v6
         #env:
-         # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # requerido
-          #DEFAULT_BRANCH: main                       # recomendado
-          # VALIDATE_ALL_CODEBASE: true             # opcional (true=todo el repo)
-          # FILTER_REGEX_INCLUDE: (^|/)src/         # opcional
-          # LINTER_RULES_PATH: config/lint          # opcional
+         # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          #DEFAULT_BRANCH: main                       
+          # VALIDATE_ALL_CODEBASE: true             
+          # FILTER_REGEX_INCLUDE: (^|/)src/        
+          # LINTER_RULES_PATH: config/lint       
 
   deploy_app:
     environment: Production
@@ -42,9 +42,6 @@ jobs:
           ref: main
           path: other
 
-    # (Opcional) instalar Ansible si tu runner no lo tiene
-    # - run: sudo apt-get update -y && sudo apt-get install -y ansible
-
       - name: Preparar vault pass file
         env:
           VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
@@ -55,11 +52,10 @@ jobs:
       - name: Deploy (vault vía FILE con ID 'prod')
         working-directory: other
         run: |
-          ansible-playbook -i hosts.ini deploy_production.yml \
-           # --vault-id prod@file:/home/gha/.vault_prod
+          ansible-playbook -i hosts.ini deploy_production.yml --vault-password-file VAULT_PASSWORD
           # Alternativa clásica:
           # ansible-playbook -i hosts.ini deploy_production.yml \
-             --vault-password-file /home/gha/.vault_prod
+           #  --vault-password-file /home/gha/.vault_prod
   
     
           
