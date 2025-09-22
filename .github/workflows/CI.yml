@@ -33,23 +33,35 @@ jobs:
   deploy_app:
     environment: Production
     runs-on: [self-hosted, Linux, X64, vm-control, ansible]
-    #needs: [super_linter]  
+
     steps:
+      - name: Checkout repo de infraestructura
+        uses: actions/checkout@v4
+        with:
+          repository: MisaelVa06/DevOpslvl2
+          ref: main
+          path: other
+
+    # (Opcional) instalar Ansible si tu runner no lo tiene
+    # - run: sudo apt-get update -y && sudo apt-get install -y ansible
+
       - name: Preparar vault pass file
-        working-directory: other
         env:
           VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
         run: |
           umask 177
-          echo -n "$VAULT_PASSWORD" > ~/.vault_prod
-
-      - name: Deploy (vault desde FILE)
+          echo -n "$VAULT_PASSWORD" > /home/gha/.vault_prod
+  
+      - name: Deploy (vault vía FILE con ID 'prod')
         working-directory: other
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml \
-            --vault-password-file prod@file:~/.vault_prod
-
+            --vault-id prod@file:/home/gha/.vault_prod
+          # Alternativa clásica:
+          # ansible-playbook -i hosts.ini deploy_production.yml \
+          #   --vault-password-file /home/gha/.vault_prod
   
+    
           
 
  
