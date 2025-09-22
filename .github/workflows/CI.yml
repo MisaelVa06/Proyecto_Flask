@@ -43,11 +43,13 @@ jobs:
           path: other
 
       - name: ansible_deploy_prod
+        working-directory: other
         env:
           VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}   # <- tu secret
+          ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml --vault-id prod@env:VAULT_PASSWORD 
-        working-directory: other
+
   
           
 
