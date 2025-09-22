@@ -50,15 +50,20 @@ jobs:
           echo -n "$VAULT_PASSWORD" > "$GITHUB_WORKSPACE/.vault_prod"
       
       - name: Deploy (vault vía FILE con ID 'prod')
-        run: |
-          ansible-playbook -i hosts.ini deploy_production.yml \
-            --vault-id prod@file:"$GITHUB_WORKSPACE/.vault_prod"
+       # run: |
+        #  ansible-playbook -i hosts.ini deploy_production.yml \
+        #    --vault-id prod@file:"$GITHUB_WORKSPACE/.vault_prod"
 
-      - name: Debug rutas
-        run: |
-          echo "WS=$GITHUB_WORKSPACE"
-          ls -la $GITHUB_WORKSPACE
-          ls -la $GITHUB_WORKSPACE/other
+
+  debug:
+     environment: Production
+     runs-on: [self-hosted, Linux, X64, vm-control, ansible]
+     steps:
+        - name: Debug rutas
+          run: |
+            echo "WS=$GITHUB_WORKSPACE"
+            ls -la $GITHUB_WORKSPACE
+            ls -la $GITHUB_WORKSPACE/other
 
   
     
