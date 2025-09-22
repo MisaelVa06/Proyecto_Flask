@@ -56,9 +56,10 @@ jobs:
 #
 
   debug:
-     environment: Production
-     runs-on: [self-hosted, Linux, X64, vm-control, ansible]
-     steps:
+    needs: [deploy_app]
+    environment: Production
+    runs-on: [self-hosted, Linux, X64, vm-control, ansible]
+    steps:
         - name: Debug rutas
           run: |
             echo "WS=$GITHUB_WORKSPACE"
