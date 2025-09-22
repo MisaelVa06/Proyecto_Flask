@@ -56,10 +56,10 @@ jobs:
         working-directory: other
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml \
-            --vault-id prod@file:/home/gha/.vault_prod
+           # --vault-id prod@file:/home/gha/.vault_prod
           # Alternativa clásica:
           # ansible-playbook -i hosts.ini deploy_production.yml \
-          #   --vault-password-file /home/gha/.vault_prod
+             --vault-password-file /home/gha/.vault_prod
   
     
           
