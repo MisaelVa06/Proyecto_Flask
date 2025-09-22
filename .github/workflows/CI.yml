@@ -50,7 +50,6 @@ jobs:
           echo -n "$VAULT_PASSWORD" > /home/gha/.vault_prod
       
       - name: Deploy (vault vía FILE con ID 'prod')
-        working-directory: other
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml \
             --vault-id prod@file:/home/gha/.vault_prod
