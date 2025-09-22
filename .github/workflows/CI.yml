@@ -62,9 +62,9 @@ jobs:
     steps:
         - name: Debug rutas
           run: |
-            echo "WS=$GITHUB_WORKSPACE"
+            #echo "WS=$GITHUB_WORKSPACE"
             ls -la $GITHUB_WORKSPACE
-            ls -la $GITHUB_WORKSPACE/other
+            #ls -la $GITHUB_WORKSPACE/other
 
   
     
