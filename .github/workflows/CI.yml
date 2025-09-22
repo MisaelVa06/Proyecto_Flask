@@ -40,22 +40,28 @@ jobs:
         with:
           repository: MisaelVa06/DevOpslvl2
           ref: main
-          path: other
+
 
       - name: Preparar vault pass file
         env:
           VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
         run: |
           umask 177
-          echo -n "$VAULT_PASSWORD" > /home/gha/.vault_prod
+          echo -n "$VAULT_PASSWORD" > .vault_prod
   
       - name: Deploy (vault vía FILE con ID 'prod')
-        working-directory: other
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml --vault-password-file VAULT_PASSWORD
           # Alternativa clásica:
           # ansible-playbook -i hosts.ini deploy_production.yml \
            #  --vault-password-file /home/gha/.vault_prod
+
+      - name: Debug rutas
+        run: |
+          echo "WS=$GITHUB_WORKSPACE"
+          ls -la $GITHUB_WORKSPACE
+          ls -la $GITHUB_WORKSPACE/other
+
   
     
           
