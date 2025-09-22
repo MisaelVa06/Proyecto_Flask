@@ -47,7 +47,7 @@ jobs:
         run: |
           ansible-playbook -i hosts.ini deploy_production.yml \
             --vault-id prod@env:VAULT_PASSWORD 
-        working-directory: other/DevOpslvl2
+        working-directory: other
   
           
 
