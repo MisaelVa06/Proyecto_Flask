@@ -49,7 +49,7 @@ jobs:
           umask 177
           echo -n "$VAULT_PASSWORD" > "$GITHUB_WORKSPACE/.vault_prod"
       
-      - name: Deploy (vault vía FILE con ID 'prod')
+      #- name: Deploy (vault vía FILE con ID 'prod')
        # run: |
         #  ansible-playbook -i hosts.ini deploy_production.yml \
         #    --vault-id prod@file:"$GITHUB_WORKSPACE/.vault_prod"
