@@ -45,9 +45,8 @@ jobs:
         env:
           VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}   # <- tu secret
         run: |
-          ansible-playbook -i hosts.ini deploy_production.yml \
-            --vault-id prod@env:VAULT_PASSWORD 
-        working-directory: other
+          ansible-playbook -i hosts.ini deploy_production.yml --vault-id prod@env:VAULT_PASSWORD 
+        #working-directory: other
   
           
 
