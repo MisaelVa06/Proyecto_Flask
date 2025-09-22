@@ -31,7 +31,7 @@ jobs:
           # LINTER_RULES_PATH: config/lint          # opcional
 
   deploy_app:
-    runs-on: [selfhosted, vm-control]
+    runs-on: [self-hosted, Linux, X64, vm-control, ansible]
     #needs: [super_linter]  
     steps:
       - name: infra_repo_clone
