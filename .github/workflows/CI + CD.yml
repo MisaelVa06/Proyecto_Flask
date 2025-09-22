@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  fast_checks:
+      name: Lint, Formato y Tipos
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+            cache: "pip"
+        - name: Instalar herramientas
+          run: |
+            python -m pip install -U pip
+            pip install black ruff mypy yamllint
+        - name: Black (check)
+          run: black --check .
+        - name: Ruff (lint)
+          run: ruff check .
+        - name: mypy (types)
+          run: mypy app
+        - name: YAML lint
+          run: yamllint .      
+
+  deploy_app:
+    needs: [fast_checks]
+    environment: Production
+    runs-on: [self-hosted, Linux, X64, vm-control, ansible]
+
+    steps:
+      - name: Checkout repo de infraestructura
+        uses: actions/checkout@v4
+        with:
+          repository: MisaelVa06/DevOpslvl2
+          ref: main
+
+      - name: Preparar vault pass file
+        env:
+          VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+        run: |
+          umask 177
+          echo -n "$VAULT_PASSWORD" > "$GITHUB_WORKSPACE/.vault_prod"
+      
+      - name: Deploy_Prod
+        run: |
+          ansible-playbook -i hosts.ini deploy_production.yml \
+            --vault-pass-file $GITHUB_WORKSPACE/.vault_prod
+
+
+  
+    
+          
+
+ 
+
+
